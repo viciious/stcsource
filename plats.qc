@@ -100,7 +100,8 @@ void() plat_center_touch =
 {
 	if (other.classname != "player")
 		return;
-		
+	if (team_touch())
+		return;
 	if (other.health <= 0)
 		return;
 
@@ -115,7 +116,8 @@ void() plat_outside_touch =
 {
 	if (other.classname != "player")
 		return;
-
+	if (team_touch())
+		return;
 	if (other.health <= 0)
 		return;
 		
@@ -138,7 +140,7 @@ void() plat_crush =
 //dprint ("plat_crush\n");
 
 	other.deathtype = "squish";
-	T_Damage (other, self, self, 1);
+	T_Damage (other, self, self, 1, DAMAGE_NO);
 	
 	if (self.state == STATE_UP)
 		plat_go_down ();
@@ -251,7 +253,7 @@ void() train_blocked =
 		return;
 	self.attack_finished = time + 0.5;
 	other.deathtype = "squish";
-	T_Damage (other, self, self, self.dmg);
+	T_Damage (other, self, self, self.dmg, DAMAGE_NO);
 };
 
 void() train_use =

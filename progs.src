@@ -4,6 +4,20 @@ defs.qc
 subs.qc
 combat.qc
 items.qc
+init.qc
+menu.qc
+teamplay.qc
+tfmap.qc
+archer.qc
+barrel.qc
+alch.qc
+knight.qc
+thief.qc
+ballista.qc
+bsmith.qc
+wizard.qc
+trees.qc
+ident.qc
 weapons.qc
 world.qc
 client.qc
@@ -14,5 +28,4 @@ buttons.qc
 triggers.qc
 plats.qc
 misc.qc
-
 server.qc

@@ -202,7 +202,7 @@ void() misc_fireball =
 	self.nextthink = time + (random() * 5);
 	self.think = fire_fly;
 	if (!self.speed)
-		self.speed == 1000;
+		self.speed = 1000;
 };
 
 void() fire_fly =
@@ -231,7 +231,7 @@ local entity    fireball;
 
 void() fire_touch =
 {
-	T_Damage (other, self, self, 20);
+	T_Damage (other, self, self, 20, DAMAGE_NO);
 	remove(self);
 };
 
@@ -243,7 +243,7 @@ void() barrel_explode =
 	self.takedamage = DAMAGE_NO;
 	self.classname = "explo_box";
 	// did say self.owner
-	T_RadiusDamage (self, self, 160, world, "");
+	T_RadiusDamage (self, self, 160, world, "", DAMAGE_NO);
 	WriteByte (MSG_MULTICAST, SVC_TEMPENTITY);
 	WriteByte (MSG_MULTICAST, TE_EXPLOSION);
 	WriteCoord (MSG_MULTICAST, self.origin_x);
@@ -343,7 +343,7 @@ void() Laser_Touch =
 	{
 		SpawnBlood (org, 15);
 		other.deathtype = "laser";
-		T_Damage (other, self, self.owner, 15);
+		T_Damage (other, self, self.owner, 15, DAMAGE_NO);
 	}
 	else
 	{
@@ -360,9 +360,7 @@ void() Laser_Touch =
 };
 
 void(vector org, vector vec) LaunchLaser =
-{
-	local   vector  vec;
-		
+{	
 	if (self.classname == "monster_enforcer")
 		sound (self, CHAN_WEAPON, "enforcer/enfire.wav", 1, ATTN_NORM);
 
@@ -617,7 +615,7 @@ void() func_illusionary =
 	self.movetype = MOVETYPE_NONE;
 	self.solid = SOLID_NOT;
 	setmodel (self, self.model);
-	makestatic ();
+	makestatic (self);
 };
 
 /*QUAKED func_episodegate (0 .5 .8) ? E1 E2 E3 E4
@@ -720,37 +718,79 @@ void() ambient_swamp2 =
 
 //============================================================================
 
-void() noise_think =
+void() TS_PlaySound =
 {
-	self.nextthink = time + 0.5;
-	sound (self, 1, "enforcer/enfire.wav", 1, ATTN_NORM);
-	sound (self, 2, "enforcer/enfstop.wav", 1, ATTN_NORM);
-	sound (self, 3, "enforcer/sight1.wav", 1, ATTN_NORM);
-	sound (self, 4, "enforcer/sight2.wav", 1, ATTN_NORM);
-	sound (self, 5, "enforcer/sight3.wav", 1, ATTN_NORM);
-	sound (self, 6, "enforcer/sight4.wav", 1, ATTN_NORM);
-	sound (self, 7, "enforcer/pain1.wav", 1, ATTN_NORM);
+	local float r;
+
+	r = ceil((random() * self.wait)) + 10;
+	if (self.spawnflags & 8)
+	{
+		self.think = TS_PlaySound;
+		self.nextthink = time + r;
+	}
+
+	if (self.spawnflags & 1)
+	{
+		sound(activator, CHAN_AUTO, self.noise4, 1, ATTN_NORM);
+		SUB_UseTargets();
+		return;
+	}
+
+	if (self.spawnflags & 2)
+	{
+		sound(self, CHAN_AUTO, self.noise4, 1, ATTN_NONE);
+		SUB_UseTargets();
+		return;
+	}
+
+	sound(self, CHAN_AUTO, self.noise4, 1, ATTN_NORM);
+	SUB_UseTargets();
 };
 
-/*QUAKED misc_noisemaker (1 0.5 0) (-10 -10 -10) (10 10 10)
-
-For optimzation testing, starts a lot of sounds.
+/*QUAKED misc_sound (0.3 0.1 0.6) (-10 -10 -8) (10 10 8)
 */
 
-void() misc_noisemaker =
-
+void() misc_sound =
 {
-	precache_sound2 ("enforcer/enfire.wav");
-	precache_sound2 ("enforcer/enfstop.wav");
-	precache_sound2 ("enforcer/sight1.wav");
-	precache_sound2 ("enforcer/sight2.wav");
-	precache_sound2 ("enforcer/sight3.wav");
-	precache_sound2 ("enforcer/sight4.wav");
-	precache_sound2 ("enforcer/pain1.wav");
-	precache_sound2 ("enforcer/pain2.wav");
-	precache_sound2 ("enforcer/death1.wav");
-	precache_sound2 ("enforcer/idle1.wav");
+	local float r;
 
-	self.nextthink = time + 0.1 + random();
-	self.think = noise_think;
+	r = ceil((random() * self.wait)) + TE_LAVASPLASH;
+	precache_sound(self.noise4);
+
+	if (self.spawnflags & 4)
+	{
+		if (self.spawnflags & 2)
+			ambientsound(self.origin, self.noise4, 1, ATTN_NONE);
+		else
+			ambientsound(self.origin, self.noise4, 1, ATTN_STATIC);
+	}
+	else
+	{
+		self.use = TS_PlaySound;
+	}
+
+	if (self.spawnflags & 8)
+	{
+		self.think = TS_PlaySound;
+		self.nextthink = time + r;
+	}
+};
+
+/*QUAKED misc_tree (0.3 0.1 0.6) (-19 -21 -2) (19 21 180)
+*/
+
+void() misc_tree =
+{
+	if (self.noise4 == string_null)
+	{
+		self.noise4 = "progs/tree.mdl";
+	}
+
+	precache_model(self.noise4);
+	setmodel(self, self.noise4);
+	self.solid = SOLID_BBOX;
+	setsize(self, '-19 -21 -2', '19 21 180');
+	self.movetype = MOVETYPE_TOSS;
+	self.takedamage = DAMAGE_NO;
+	self.flags = 0;
 };

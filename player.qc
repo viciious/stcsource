@@ -116,6 +116,8 @@ void() player_run;
 
 void()  player_stand1 =[        $axstnd1,       player_stand1   ]
 {
+	if (self.class == CLASS_OBSERVER)
+		return;
 	self.weaponframe=0;
 	if (self.velocity_x || self.velocity_y)
 	{
@@ -126,13 +128,13 @@ void()  player_stand1 =[        $axstnd1,       player_stand1   ]
 
 	if (self.weapon == IT_AXE)
 	{
-		if (self.walkframe >= 12)
+		if (self.walkframe >= ($axstnd12 - $axstnd1 + 1))
 			self.walkframe = 0;
 		self.frame = $axstnd1 + self.walkframe;
 	}
 	else
 	{
-		if (self.walkframe >= 5)
+		if (self.walkframe >= ($stand5 - $stand1 + 1))
 			self.walkframe = 0;
 		self.frame = $stand1 + self.walkframe;
 	}
@@ -141,7 +143,11 @@ void()  player_stand1 =[        $axstnd1,       player_stand1   ]
 
 void()  player_run =[   $rockrun1,      player_run      ]
 {
+	local float tt;
+
 	self.weaponframe=0;
+	if (self.class == CLASS_OBSERVER)
+		return;
 	if (!self.velocity_x && !self.velocity_y)
 	{
 		self.walkframe=0;
@@ -149,15 +155,57 @@ void()  player_run =[   $rockrun1,      player_run      ]
 		return;
 	}
 
+	tt = vlen(self.velocity);
+	if (tt > 100)
+	{
+		tt = ceil(random() * 2);
+		if (tt)
+		{
+			if (self.class != CLASS_THIEF)
+			{
+				if ((self.walkframe == 1) && (self.flags & FL_ONGROUND))
+				{
+					if (self.flags & FL_INWATER)
+					{
+						if (self.waterlevel == 1)
+							sound(self, CHAN_AUTO, "misc/wleft.wav", 1, ATTN_NORM);
+					}
+					else
+					{
+						if (tt == 1)
+							sound(self, CHAN_AUTO, "misc/sleft.wav", 1, ATTN_NORM);
+						else
+							sound(self, CHAN_AUTO, "misc/rleft.wav", 1, ATTN_NORM);
+					}
+				}
+				if ((self.walkframe == 4) && (self.flags & FL_ONGROUND))
+				{
+					if (self.flags & FL_INWATER)
+					{
+						if (self.waterlevel == 1)
+							sound(self, CHAN_AUTO, "misc/wright.wav", 1, ATTN_NORM);
+					}
+					else
+					{
+						if (tt == 1)
+							sound(self, CHAN_AUTO, "misc/sright.wav", 1, ATTN_NORM);
+						else
+							sound(self, CHAN_AUTO, "misc/rright.wav", 1, ATTN_NORM);
+					}
+				}
+			}
+		}
+	}
+
 	if (self.weapon == IT_AXE)
 	{
-		if (self.walkframe == 6)
+		if (self.walkframe == ($axrun6 - $axrun1 + 1))
 			self.walkframe = 0;
 		self.frame = $axrun1 + self.walkframe;
 	}
 	else
 	{
-		if (self.walkframe == 6)
+		if (self.walkframe == ($rockrun6 - $rockrun1 + 1))
 			self.walkframe = 0;
 		self.frame = self.frame + self.walkframe;
 	}
@@ -179,6 +227,20 @@ void()  player_shot4 =  [$shotatt4, player_shot5        ] {self.weaponframe=4;};
 void()  player_shot5 =  [$shotatt5, player_shot6        ] {self.weaponframe=5;};
 void()  player_shot6 =  [$shotatt6, player_run  ] {self.weaponframe=6;};
 
+void()  player_book1 =  [$shotatt1, player_book2        ] {self.weaponframe=1;muzzleflash();};
+void()  player_book2 =  [$shotatt1, player_book3        ] {self.weaponframe=2;};
+void()  player_book3 =  [$shotatt2, player_book4        ] {self.weaponframe=3;};
+void()  player_book4 =  [$shotatt2, player_book5        ] {self.weaponframe=4;};
+void()  player_book5 =  [$shotatt3, player_book6        ] {self.weaponframe=5;};
+void()  player_book6 =  [$shotatt3, player_book6        ] {self.weaponframe=6;};
+void()  player_book7 =  [$shotatt4, player_book7        ] {self.weaponframe=7;};
+void()  player_book8 =  [$shotatt4, player_book8        ] {self.weaponframe=8;};
+void()  player_book9 =  [$shotatt5, player_book9        ] {self.weaponframe=9;};
+void()  player_book10 = [$shotatt5, player_book10      ] {self.weaponframe=10;};
+void()  player_book11 = [$shotatt6, player_book11      ] {self.weaponframe=11;};
+void()  player_book12 = [$shotatt6, player_run  ] {self.weaponframe=12;};
+
+
 void()  player_axe1 =   [$axatt1, player_axe2   ] {self.weaponframe=1;};
 void()  player_axe2 =   [$axatt2, player_axe3   ] {self.weaponframe=2;};
 void()  player_axe3 =   [$axatt3, player_axe4   ] {self.weaponframe=3;W_FireAxe();};
@@ -199,6 +261,19 @@ void()  player_axed2 =  [$axattd2, player_axed3 ] {self.weaponframe=6;};
 void()  player_axed3 =  [$axattd3, player_axed4 ] {self.weaponframe=7;W_FireAxe();};
 void()  player_axed4 =  [$axattd4, player_run   ] {self.weaponframe=8;};
 
+void()  player_ssword1 = [$axattd1, player_ssword2   ] {self.weaponframe = 1; Knight_FireSpike(2); };
+void()  player_ssword2 = [$axattd2, player_ssword3   ] {self.weaponframe = 2; Knight_FireSpike(1); };
+void()  player_ssword3 = [$axattd3, player_ssword4   ] {self.weaponframe = 3; W_FireAxe(); Knight_FireSpike(0); };
+void()  player_ssword4 = [$axattd4, player_run       ] {self.weaponframe = WEAPON_BIG; Knight_FireSpike(-1); };
+
+void()  player_torch1  = [ $axatt1, player_torch2    ] {self.weaponframe = 1; };
+void()  player_torch2  = [ $axatt1, player_torch3    ] {self.weaponframe = 2; };
+void()  player_torch3  = [ $axatt2, player_torch4    ] {self.weaponframe = 3; };
+void()  player_torch4  = [ $axatt2, player_torch5    ] {self.weaponframe = 4; Barrel_FireTorch(); };
+void()  player_torch5  = [ $axatt3, player_torch6    ] {self.weaponframe = 5; Barrel_FireTorch(); };
+void()  player_torch6  = [ $axatt4, player_torch7    ] {self.weaponframe = 6; Barrel_FireTorch(); };
+void()  player_torch7  = [ $axatt4, player_run       ] {self.weaponframe = 7; };
+
 
 //============================================================================
 
@@ -212,7 +287,6 @@ void() player_nail1   =[$nailatt1, player_nail2  ]
 	if (self.weaponframe == 9)
 		self.weaponframe = 1;
 	SuperDamageSound();
-	W_FireSpikes (4);
 	self.attack_finished = time + 0.2;
 };
 void() player_nail2   =[$nailatt2, player_nail1  ]
@@ -225,8 +299,98 @@ void() player_nail2   =[$nailatt2, player_nail1  ]
 	if (self.weaponframe == 9)
 		self.weaponframe = 1;
 	SuperDamageSound();
-	W_FireSpikes (-4);
 	self.attack_finished = time + 0.2;
+};
+
+//============================================================================
+
+void() player_hook1 = [ $axattc1, player_hook2 ]
+{
+	self.weaponframe = 1; 
+	if (!(self.hook & HOOK_OUT))
+	{
+		self.hook = (HOOK_ON | HOOK_OUT);
+		Thief_FireChain(self);
+	}
+};
+
+void() player_hook2 = [ $axattd1, player_hook3 ]
+{
+	self.weaponframe = 2;
+};
+
+void() player_hook3 = [ $axattd2, player_hook4 ]
+{
+	self.weaponframe = 3;
+};
+
+void() player_hook4 = [ $axattd3, player_hook4 ]
+{
+	if (!self.button0)
+	{
+		player_run();
+		return;
+	}
+	self.weaponframe = 4;
+	self.attack_finished = time + 0.2;
+};
+
+//============================================================================
+
+void() player_steal1 = [ $axatt1, player_steal2 ] { self.weaponframe = 1; };
+void() player_steal2 = [ $axatt2, player_steal3 ] { self.weaponframe = 2; };
+void() player_steal3 = [ $axatt3, player_steal4 ] { self.weaponframe = 3; };
+void() player_steal4 = [ $axatt4, player_steal5 ] { self.weaponframe = 4; StealAmmo(); };
+void() player_steal5 = [ $axatt5, player_run ]    { self.weaponframe = 5; };
+
+//============================================================================
+
+void() player_arrow1 = [ $shotatt1, player_arrow2 ]
+{
+	self.weaponframe = 1;
+	sound(self, CHAN_WEAPON, "archer/draw.wav", 1, ATTN_NORM);
+	self.state = STATE_UP;
+	self.regen_time = 200;
+};
+
+void() player_arrow2 = [ $shotatt2, player_arrow3 ]
+{
+	self.weaponframe = 2;
+};
+
+void() player_arrow3 = [ $shotatt3, player_arrow4 ]
+{
+	self.weaponframe = 3;
+};
+
+void() player_arrow4 = [ $shotatt4, player_arrow5 ]
+{
+	self.weaponframe = 4;
+};
+
+void() player_arrow5 = [ $shotatt5, player_arrow6 ]
+{
+	self.weaponframe = 5;
+	if (infokey(self, "autozoom") == "1")
+		stuffcmd(self, "azoom_in\n");
+};
+
+void() player_arrow6 = [ $shotatt6, player_arrow6 ]
+{
+	if (!self.button0)
+	{
+		Archer_ArrowFire();
+		return;
+	}
+	if (self.max_speed != 230 || self.max_strafe != 250)
+	{
+		self.max_speed = 230;
+		self.max_strafe = 250;
+		SetSpeed();
+	}
+	self.weaponframe = 6;
+	self.attack_finished = time + 0.2;
+	self.regen_time = self.regen_time + 1;
 };
 
 //============================================================================
@@ -241,7 +405,6 @@ void() player_light1   =[$light1, player_light2  ]
 	if (self.weaponframe == 5)
 		self.weaponframe = 1;
 	SuperDamageSound();
-	W_FireLightning();
 	self.attack_finished = time + 0.2;
 };
 void() player_light2   =[$light2, player_light1  ]
@@ -254,12 +417,19 @@ void() player_light2   =[$light2, player_light1  ]
 	if (self.weaponframe == 5)
 		self.weaponframe = 1;
 	SuperDamageSound();
-	W_FireLightning();
 	self.attack_finished = time + 0.2;
 };
 
 //============================================================================
 
+void() player_bomb1 = [ $rockatt1, player_bomb2 ] { self.weaponframe = 1; };
+void() player_bomb2 = [ $rockatt2, player_bomb3 ] { self.weaponframe = 2; };
+void() player_bomb3 = [ $rockatt3, player_bomb4 ] { self.weaponframe = 3; };
+void() player_bomb4 = [ $rockatt4, player_bomb5 ] { self.weaponframe = 4; Barrel_FireBomb(); };
+void() player_bomb5 = [ $rockatt5, player_bomb6 ] { self.weaponframe = 5; };
+void() player_bomb6 = [ $rockatt6, player_run ] { self.weaponframe = 6; };
+
+//============================================================================
 
 void() player_rocket1   =[$rockatt1, player_rocket2  ] {self.weaponframe=1;
 	muzzleflash();};
@@ -366,7 +536,7 @@ void()  player_axpain4 =        [       $axpain4,       player_axpain5  ] {};
 void()  player_axpain5 =        [       $axpain5,       player_axpain6  ] {};
 void()  player_axpain6 =        [       $axpain6,       player_run      ] {};
 
-void() player_pain =
+void(entity attacker, float damage) player_pain =
 {
 	if (self.weaponframe)
 		return;

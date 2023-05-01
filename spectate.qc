@@ -88,6 +88,10 @@ void() SpectatorImpulseCommand =
 			self.fixangle = TRUE;           // turn this way immediately
 		}
 	}
+	if (self.impulse == 2)
+	{
+		self.aflag = TRUE;
+	}
 
 	self.impulse = 0;
 };
@@ -103,6 +107,20 @@ void() SpectatorThink =
 {
 	// self.origin, etc contains spectator position, so you could
 	// do some neat stuff here
+
+	if (self.aflag)
+	{
+		self.goalentity = find(self.goalentity, classname, "flag");
+		if (self.goalentity == world)
+			self.goalentity = find(self.goalentity, classname, "flag");
+
+		if (self.goalentity != world)
+		{
+			setorigin(self, self.goalentity.origin);
+			self.angles = self.goalentity.angles;
+			self.fixangle = TRUE;
+		}
+	}
 
 	if (self.impulse)
 		SpectatorImpulseCommand();

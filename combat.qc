@@ -25,10 +25,9 @@
 
 */
 
-void() T_MissileTouch;
 void() info_player_start;
 void(entity targ, entity attacker) ClientObituary;
-void(entity inflictor, entity attacker, float damage, entity ignore, string dtype) T_RadiusDamage;
+void(entity inflictor, entity attacker, float damage, entity ignore, string dtype, float dflags) T_RadiusDamage;
 
 /*SERVER
 void() monster_death_use;
@@ -122,6 +121,8 @@ void(entity targ, entity attacker) Killed =
 	self = oself;
 };
 
+float DAMAGE_IGNOREARMOR    = 1;
+
 
 /*
 ============
@@ -131,15 +132,13 @@ The damage is coming from inflictor, but get mad at attacker
 This should be the only function that ever reduces health.
 ============
 */
-void(entity targ, entity inflictor, entity attacker, float damage) T_Damage=
+void(entity targ, entity inflictor, entity attacker, float damage, float dflags) T_Damage =
 {
 	local   vector  dir;
 	local   entity  oldself;
 	local   float   save;
 	local   float   take;
-	local   string  s;
-	local   string  attackerteam, targteam;
-
+	local   float   attackerteam, targteam;
 
 	if (!targ.takedamage)
 		return;
@@ -147,6 +146,21 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_Damage=
 // used by buttons and triggers to set activator for target firing
 	damage_attacker = attacker;
 
+//ZOID 12-13-96: self.team doesn't work in QW.  Use keys
+	//attackerteam = infokey(attacker, "team");
+	//targteam = infokey(targ, "team");
+	attackerteam = attacker.vteam;
+	targteam = targ.vteam;
+
+	if ((teamplay == CLASS_KNIGHT) && (targteam == attackerteam) && 
+		(attacker.classname == "player") && (attackerteam != STATE_HOME) && 
+		(inflictor.classname != "door") && MAX_TEAMS)
+		return;
+
+	if ((teamplay == CLASS_THIEF) && (targteam == attackerteam) && 
+		(attacker.classname == "player") && (attackerteam != STATE_HOME) && 
+		(targ != attacker) && (inflictor.classname != "door") && MAX_TEAMS)
+		return;
 
 // check for quad damage powerup on the attacker
 	if (attacker.super_damage_finished > time && inflictor.classname != "door")
@@ -156,6 +170,14 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_Damage=
 		damage = damage * 4;
 
 // save damage based on the target's armor level
+
+	save = ceil(targ.armortype * damage);
+	if (dflags & DAMAGE_IGNOREARMOR)
+	{
+		take = ceil(damage);
+		targ.deathtype = "poison2";
+		save = 0;
+	}
 
 	save = ceil(targ.armortype*damage);
 	if (save >= targ.armorvalue)
@@ -195,11 +217,6 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_Damage=
 		// Otherwise, these rules apply to rockets and grenades                        
 		// for blast velocity
 			targ.velocity = targ.velocity + dir * damage * 8;
-		
-		// Rocket Jump modifiers
-		if ( (rj > 1) & ((attacker.classname == "player") & (targ.classname == "player")) & ( attacker.netname == targ.netname)) 
-			targ.velocity = targ.velocity + dir * damage * rj;
-
 	}
 
 
@@ -217,21 +234,16 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_Damage=
 		return;
 	}
 
-// team play damage avoidance
-//ZOID 12-13-96: self.team doesn't work in QW.  Use keys
-	attackerteam = infokey(attacker, "team");
-	targteam = infokey(targ, "team");
-
 	if ((teamplay == 1) && (targteam == attackerteam) &&
-		(attacker.classname == "player") && (attackerteam != "") &&
-		inflictor.classname !="door")
+		(attacker.classname == "player") && (attackerteam != 0) &&
+		inflictor.classname !="door" && MAX_TEAMS)
 		return;
 
 	if ((teamplay == 3) && (targteam == attackerteam) &&
-		(attacker.classname == "player") && (attackerteam != "") &&
-		(targ != attacker)&& inflictor.classname !="door")
+		(attacker.classname == "player") && (attackerteam != 0) &&
+		(targ != attacker)&& inflictor.classname !="door" && MAX_TEAMS)
 		return;
-		
+
 // do the damage
 	targ.health = targ.health - take;
 
@@ -275,7 +287,7 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_Damage=
 T_RadiusDamage
 ============
 */
-void(entity inflictor, entity attacker, float damage, entity ignore, string dtype) T_RadiusDamage =
+void(entity inflictor, entity attacker, float damage, entity ignore, string dtype, float dflags) T_RadiusDamage =
 {
 	local   float   points;
 	local   entity  head;
@@ -307,7 +319,7 @@ void(entity inflictor, entity attacker, float damage, entity ignore, string dtyp
 					if (CanDamage (head, inflictor))
 					{
 						head.deathtype = dtype;
-						T_Damage (head, inflictor, attacker, points);
+						T_Damage (head, inflictor, attacker, points, dflags);
 					}
 				}
 			}
@@ -321,7 +333,7 @@ void(entity inflictor, entity attacker, float damage, entity ignore, string dtyp
 T_BeamDamage
 ============
 */
-void(entity attacker, float damage) T_BeamDamage =
+void(entity attacker, float damage, float dflags) T_BeamDamage =
 {
 	local   float   points;
 	local   entity  head;
@@ -341,10 +353,9 @@ void(entity attacker, float damage) T_BeamDamage =
 			if (points > 0)
 			{
 				if (CanDamage (head, attacker))
-					T_Damage (head, attacker, attacker, points);
+					T_Damage (head, attacker, attacker, points, dflags);
 			}
 		}
 		head = head.chain;
 	}
 };
-

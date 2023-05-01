@@ -108,6 +108,8 @@ void() multi_touch =
 {
 	if (other.classname != "player")
 		return;
+	if (team_touch())
+		return;
 	
 // if the trigger has an angles field, check player's facing direction
 	if (self.movedir != '0 0 0')
@@ -357,16 +359,16 @@ void() tdeath_touch =
 			self.classname = "teledeath3";
 			other.invincible_finished = 0;
 			self.owner.invincible_finished = 0;
-			T_Damage (other, self, self, 50000);
+			T_Damage (other, self, self, 50000, DAMAGE_IGNOREARMOR);
 			other2 = self.owner;
 			self.owner = other;
-			T_Damage (other2, self, self, 50000);
+			T_Damage (other2, self, self, 50000, DAMAGE_IGNOREARMOR);
 		}
 			
 		if (other.invincible_finished > time)
 		{
 			self.classname = "teledeath2";
-			T_Damage (self.owner, self, self, 50000);
+			T_Damage (self.owner, self, self, 50000, DAMAGE_IGNOREARMOR);
 			return;
 		}
 		
@@ -374,7 +376,7 @@ void() tdeath_touch =
 
 	if (other.health)
 	{
-		T_Damage (other, self, self, 50000);
+		T_Damage (other, self, self, 50000, DAMAGE_IGNOREARMOR);
 	}
 };
 
@@ -410,6 +412,8 @@ local vector	org;
 			return;		// not fired yet
 		}
 	}
+	if (team_touch())
+		return;
 
 	if (self.spawnflags & PLAYER_ONLY)
 	{
@@ -573,10 +577,12 @@ void() hurt_on =
 
 void() hurt_touch =
 {
+	if (team_touch())
+		return;
 	if (other.takedamage)
 	{
 		self.solid = SOLID_NOT;
-		T_Damage (other, self, self, self.dmg);
+		T_Damage (other, self, self, self.dmg, DAMAGE_NO);
 		self.think = hurt_on;
 		self.nextthink = time + 1;
 	}
@@ -603,6 +609,9 @@ float PUSH_ONCE = 1;
 
 void() trigger_push_touch =
 {
+	if (team_touch())
+		return;
+
 	if (other.classname == "grenade")
 		other.velocity = self.speed * self.movedir * 10;
 	else if (other.health > 0)

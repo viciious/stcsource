@@ -80,6 +80,8 @@ void() button_touch =
 {
 	if (other.classname != "player")
 		return;
+	if (team_touch())
+		return;
 	self.enemy = other;
 	button_fire ();
 };

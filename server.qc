@@ -29,7 +29,6 @@ void() monster_ogre = {remove(self);};
 void() monster_demon1 = {remove(self);};
 void() monster_shambler = {remove(self);};
 void() monster_knight = {remove(self);};
-void() monster_army = {remove(self);};
 void() monster_wizard = {remove(self);};
 void() monster_dog = {remove(self);};
 void() monster_zombie = {remove(self);};
@@ -83,9 +82,6 @@ local entity    temp;
 	self = other;
 	other = temp;
 
-	if (self.classname == "monster_ogre")
-		sound (self, CHAN_VOICE, "ogre/ogdrag.wav", 1, ATTN_IDLE);// play chainsaw drag sound
-
 //dprint ("t_movetarget\n");
 	self.goalentity = self.movetarget = find (world, targetname, other.target);
 	self.ideal_yaw = vectoyaw(self.goalentity.origin - self.origin);
@@ -121,3 +117,143 @@ void() path_corner =
 
 
 //============================================================================
+
+void(float num) ClientMapSet =
+{
+	local string k;
+	local string mopname;
+
+	k = ftos(num);
+	mopname = infokey(world, k);
+	if ((mopname == string_null))
+		return;
+
+	stuffcmd(self, "alias ");
+	stuffcmd(self, mopname);
+	stuffcmd(self, " \"impulse ");
+	k = ftos((num + 200));
+	stuffcmd(self, k);
+	stuffcmd(self, "\"\n");
+};
+
+void() ClientMapAlias =
+{
+	local float r;
+
+	r = 0;
+	while (r < 21)
+	{
+		ClientMapSet(r);
+		r = r + 1;
+	}
+};
+
+void() SUB_Vote =
+{
+	local float r;
+	local string k;
+
+	if (infokey(world, "nextmap") != "vote")
+		return;
+
+	if ((votemap == string_null))
+	{
+		sprint(self, PRINT_HIGH, "No map has been proposed\n");
+		return;
+	}
+	if (self.aflag & FL_VOTED)
+	{
+		sprint(self, PRINT_HIGH, "You already voted.\n");
+		return;
+	}
+
+	self.aflag = (self.aflag | FL_VOTED);
+	vt_votes = vt_votes + 1;
+	r = Num_Players();
+	if (vt_votes >= r)
+	{
+		votemap = infokey(world, "votemap");
+		changelevel(votemap);
+	}
+	else
+	{
+		bprint(PRINT_HIGH, "Votes in favor:");
+		k = ftos(vt_votes);
+		bprint(PRINT_HIGH, k);
+		bprint(PRINT_HIGH, "\nVotes needed:");
+		k = ftos(r);
+		bprint(PRINT_HIGH, k);
+		bprint(PRINT_HIGH, "\n");
+	}
+};
+
+void(string hey) SUB_Propose =
+{
+	local entity t;
+
+	votemap = hey;
+	extra = hey;
+	vt_votes = 1;
+	t = find(world, classname, "player");
+	while (t != world)
+	{
+		t.aflag = t.aflag - (t.aflag & FL_VOTED);
+		t = find(t, classname, "player");
+	}
+
+	self.aflag = self.aflag | FL_VOTED;
+	bprint(PRINT_HIGH, self.netname);
+	bprint(PRINT_HIGH, " proposes going to ");
+	bprint(PRINT_HIGH, hey);
+	votemap = hey;
+	bprint(PRINT_HIGH, "\nType 'yes' on the console to agree\n");
+	localcmd("localinfo votemap ");
+	localcmd(votemap);
+	localcmd("\n");
+
+	if (vt_votes >= Num_Players())
+		changelevel(hey);
+};
+
+void(float y) ProposeMap =
+{
+	local string mopname;
+	local string k;
+
+	if (infokey(world, "nextmap") != "vote")
+		return;
+	if (y < 200 || y >= 221)
+		return;
+
+	y = y - 200;
+	k = ftos(y);
+	mopname = infokey(world, k);
+	if (mopname == string_null)
+		return;
+
+	SUB_Propose(mopname);
+};
+
+void() MapList =
+{
+	local float r;
+	local string d;
+
+	r = 0;
+	sprint(self, PRINT_HIGH, "Maps available on this server:\n");
+	if (infokey(world, "nextmap") == "vote")
+		sprint(self, PRINT_HIGH, "To vote for a map, type it's name\n");
+
+	sprint(self, PRINT_HIGH, "----------------------\n");
+	while (r < 21)
+	{
+		d = ftos(r);
+		d = infokey(world, d);
+		if (d != string_null)
+		{
+			sprint(self, PRINT_HIGH, d);
+			sprint(self, PRINT_HIGH, "\n");
+		}
+		r = r + 1;
+	}
+};

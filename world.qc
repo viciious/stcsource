@@ -301,12 +301,6 @@ void() worldspawn =
 	precache_model ("progs/s_explod.spr");  // sprite explosion
 
 	precache_model ("progs/v_axe.mdl");
-	precache_model ("progs/v_shot.mdl");
-	precache_model ("progs/v_nail.mdl");
-	precache_model ("progs/v_rock.mdl");
-	precache_model ("progs/v_shot2.mdl");
-	precache_model ("progs/v_nail2.mdl");
-	precache_model ("progs/v_rock2.mdl");
 
 	precache_model ("progs/bolt.mdl");              // for lightning gun
 	precache_model ("progs/bolt2.mdl");             // for lightning gun
@@ -321,9 +315,8 @@ void() worldspawn =
 	precache_model ("progs/backpack.mdl");
 
 	precache_model ("progs/zom_gib.mdl");
-
-	precache_model ("progs/v_light.mdl");
 	
+	cvar_set ("sv_maxspeed", "500");
 
 //
 // Setup light animation tables. 'a' is total darkness, 'z' is maxbright.

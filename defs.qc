@@ -419,6 +419,8 @@ float   EF_FLAG2                = 32;
 // GLQuakeWorld Stuff
 float 	EF_BLUE		=	64;	// Blue Globe effect for Quad
 float	EF_RED		=	128;	// Red Globe effect for Pentagram
+float	EF_YELLOW	=	256;
+float	EF_GREEN	=	512;
 // messages
 float   MSG_BROADCAST   = 0;            // unreliable to all
 float   MSG_ONE                 = 1;            // reliable to one (msg_entity)
@@ -665,7 +667,7 @@ void() traceoff                                         = #30;
 void(entity e) eprint                           = #31;          // prints an entire edict
 float(float yaw, float dist) walkmove   = #32;  // returns TRUE or FALSE
 // #33 was removed
-float(float yaw, float dist) droptofloor= #34;  // TRUE if landed on floor
+float() droptofloor= #34;  // TRUE if landed on floor
 void(float style, string value) lightstyle = #35;
 float(float v) rint                                     = #36;          // round to nearest int
 float(float v) floor                            = #37;          // largest integer <= v
@@ -744,11 +746,68 @@ void() SUB_Remove;
 //
 //      combat.qc
 //
-void(entity targ, entity inflictor, entity attacker, float damage) T_Damage;
+void(entity targ, entity inflictor, entity attacker, float damage, float dflags) T_Damage;
 
 
 float (entity e, float healamount, float ignore) T_Heal; // health function
 
 float(entity targ, entity inflictor) CanDamage;
 
-
+//
+// STORM THE CASTLE
+//
+.float class;
+.float newclass;
+.entity destroy;
+float FL_ONFIRE    = 1;
+float FL_BUILD    = 2;
+float FL_MENU    = 4;
+float FL_MOTD    = 8;
+float FL_VOTED    = 16;
+float FL_SHEILD    = 32;
+float FL_DIALOG    = 64;
+float CLASS_OBSERVER;
+float CLASS_ARCHER    = 1;
+float CLASS_ALCH    = 2;
+float CLASS_BARREL    = 3;
+float CLASS_KNIGHT    = 4;
+float CLASS_THIEF    = 5;
+float CLASS_WIZARD    = 6;
+float CLASS_BSMITH    = 7;
+.float max_shells;
+.float max_nails;
+.float max_rockets;
+.float max_cells;
+.float max_type;
+.float max_value;
+.float max_bit;
+.float heat;
+.float vteam;
+.float build_finished;
+.void() th_build;
+.float build_sound;
+.float regen_time;
+.float max_strafe;
+.float max_speed;
+.float poison;
+.float poison_time;
+.entity r_owner;
+.entity build_item;
+.string item_class;
+.entity follow_item;
+.float refresh_cent;
+.void() th_menu;
+.string pl_skin;
+.float random_class;
+float MAPTYPE;
+float MAP_CTF    = 1;
+float MAP_STC    = 2;
+float MAP_TF    = 3;
+float MAX_TEAMS;
+float STATE_HOME;
+float STATE_AWAY    = 1;
+float STATE_CARRIED    = 2;
+.float saved_time;
+.string msg1;
+.string msg2;
+.string msg3;

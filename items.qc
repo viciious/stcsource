@@ -54,8 +54,6 @@ void() q_touch;
 
 void() q_touch =
 {
-local entity    stemp;
-local float     best;
 local string    s;
 
 	if (other.classname != "player")
@@ -124,8 +122,6 @@ void() r_touch;
 
 void() r_touch =
 {
-local entity    stemp;
-local float     best;
 local string    s;
 
 	if (other.classname != "player")
@@ -302,7 +298,6 @@ void() item_health =
 
 void() health_touch =
 {
-	local   float amount;
 	local   string  s;
 	
 	if (deathmatch == 4)
@@ -412,18 +407,24 @@ void() armor_touch =
 		type = 0.3;
 		value = 100;
 		bit = IT_ARMOR1;
+		if (other.class == CLASS_KNIGHT)
+			value = 150;
 	}
 	if (self.classname == "item_armor2")
 	{
 		type = 0.6;
 		value = 150;
 		bit = IT_ARMOR2;
+		if (other.class == CLASS_KNIGHT)
+			value = 250;
 	}
 	if (self.classname == "item_armorInv")
 	{
 		type = 0.8;
 		value = 200;
 		bit = IT_ARMOR3;
+		if (other.class == CLASS_KNIGHT)
+			value = 400;
 	}
 	if (other.armortype*other.armorvalue >= type*value)
 		return;
@@ -705,16 +706,7 @@ void() weapon_touch =
 
 void() weapon_supershotgun =
 {
-if (deathmatch <= 3)
-{
-	precache_model ("progs/g_shot.mdl");
-	setmodel (self, "progs/g_shot.mdl");
-	self.weapon = IT_SUPER_SHOTGUN;
-	self.netname = "Double-barrelled Shotgun";
-	self.touch = weapon_touch;
-	setsize (self, '-16 -16 0', '16 16 56');
-	StartItem ();
-}
+	remove(self);
 };
 
 /*QUAKED weapon_nailgun (0 .5 .8) (-16 -16 0) (16 16 32)
@@ -722,16 +714,7 @@ if (deathmatch <= 3)
 
 void() weapon_nailgun =
 {
-if (deathmatch <= 3)
-{
-	precache_model ("progs/g_nail.mdl");
-	setmodel (self, "progs/g_nail.mdl");
-	self.weapon = IT_NAILGUN;
-	self.netname = "nailgun";
-	self.touch = weapon_touch;
-	setsize (self, '-16 -16 0', '16 16 56');
-	StartItem ();
-}
+	remove(self);
 };
 
 /*QUAKED weapon_supernailgun (0 .5 .8) (-16 -16 0) (16 16 32)
@@ -739,16 +722,7 @@ if (deathmatch <= 3)
 
 void() weapon_supernailgun =
 {
-if (deathmatch <= 3)
-{
-	precache_model ("progs/g_nail2.mdl");
-	setmodel (self, "progs/g_nail2.mdl");
-	self.weapon = IT_SUPER_NAILGUN;
-	self.netname = "Super Nailgun";
-	self.touch = weapon_touch;
-	setsize (self, '-16 -16 0', '16 16 56');
-	StartItem ();
-}
+	remove(self);
 };
 
 /*QUAKED weapon_grenadelauncher (0 .5 .8) (-16 -16 0) (16 16 32)
@@ -756,16 +730,7 @@ if (deathmatch <= 3)
 
 void() weapon_grenadelauncher =
 {
-if (deathmatch <= 3)
-{
-	precache_model ("progs/g_rock.mdl");
-	setmodel (self, "progs/g_rock.mdl");
-	self.weapon = 3;
-	self.netname = "Grenade Launcher";
-	self.touch = weapon_touch;
-	setsize (self, '-16 -16 0', '16 16 56');
-	StartItem ();
-}
+	remove(self);
 };
 
 /*QUAKED weapon_rocketlauncher (0 .5 .8) (-16 -16 0) (16 16 32)
@@ -773,34 +738,15 @@ if (deathmatch <= 3)
 
 void() weapon_rocketlauncher =
 {
-if (deathmatch <= 3)
-{
-	precache_model ("progs/g_rock2.mdl");
-	setmodel (self, "progs/g_rock2.mdl");
-	self.weapon = 3;
-	self.netname = "Rocket Launcher";
-	self.touch = weapon_touch;
-	setsize (self, '-16 -16 0', '16 16 56');
-	StartItem ();
-}
+	remove(self);
 };
-
 
 /*QUAKED weapon_lightning (0 .5 .8) (-16 -16 0) (16 16 32)
 */
 
 void() weapon_lightning =
 {
-if (deathmatch <= 3)
-{
-	precache_model ("progs/g_light.mdl");
-	setmodel (self, "progs/g_light.mdl");
-	self.weapon = 3;
-	self.netname = "Thunderbolt";
-	self.touch = weapon_touch;
-	setsize (self, '-16 -16 0', '16 16 56');
-	StartItem ();
-}
+	remove(self);
 };
 
 
@@ -921,14 +867,14 @@ void() item_shells =
 
 	if (self.spawnflags & WEAPON_BIG2)
 	{
-		precache_model ("maps/b_shell1.bsp");
-		setmodel (self, "maps/b_shell1.bsp");
+		precache_model("progs/arrow.bsp");
+		setmodel(self, "progs/arrow.bsp");
 		self.aflag = 40;
 	}
 	else
 	{
-		precache_model ("maps/b_shell0.bsp");
-		setmodel (self, "maps/b_shell0.bsp");
+		precache_model("progs/arrow.bsp");
+		setmodel(self, "progs/arrow.bsp");
 		self.aflag = 20;
 	}
 	self.weapon = 1;
@@ -949,14 +895,14 @@ void() item_spikes =
 
 	if (self.spawnflags & WEAPON_BIG2)
 	{
-		precache_model ("maps/b_nail1.bsp");
-		setmodel (self, "maps/b_nail1.bsp");
+		precache_model("progs/nail.bsp");
+		setmodel(self, "progs/nail.bsp");
 		self.aflag = 50;
 	}
 	else
 	{
-		precache_model ("maps/b_nail0.bsp");
-		setmodel (self, "maps/b_nail0.bsp");
+		precache_model("progs/nail.bsp");
+		setmodel(self, "progs/nail.bsp");
 		self.aflag = 25;
 	}
 	self.weapon = 2;
@@ -978,14 +924,14 @@ void() item_rockets =
 
 	if (self.spawnflags & WEAPON_BIG2)
 	{
-		precache_model ("maps/b_rock1.bsp");
-		setmodel (self, "maps/b_rock1.bsp");
+		precache_model("progs/powder.bsp");
+		setmodel(self, "progs/powder.bsp");
 		self.aflag = 10;
 	}
 	else
 	{
-		precache_model ("maps/b_rock0.bsp");
-		setmodel (self, "maps/b_rock0.bsp");
+		precache_model("progs/powder.bsp");
+		setmodel(self, "progs/powder.bsp");
 		self.aflag = 5;
 	}
 	self.weapon = 3;
@@ -1008,14 +954,14 @@ void() item_cells =
 
 	if (self.spawnflags & WEAPON_BIG2)
 	{
-		precache_model ("maps/b_batt1.bsp");
-		setmodel (self, "maps/b_batt1.bsp");
+		precache_model("progs/magic.bsp");
+		setmodel(self, "progs/magic.bsp");
 		self.aflag = 12;
 	}
 	else
 	{
-		precache_model ("maps/b_batt0.bsp");
-		setmodel (self, "maps/b_batt0.bsp");
+		precache_model("progs/magic.bsp");
+		setmodel(self, "progs/magic.bsp");
 		self.aflag = 6;
 	}
 	self.weapon = 4;
@@ -1107,9 +1053,6 @@ KEYS
 
 void() key_touch =
 {
-local entity    stemp;
-local float             best;
-
 	if (other.classname != "player")
 		return;
 	if (other.health <= 0)
@@ -1240,9 +1183,6 @@ END OF LEVEL RUNES
 
 void() sigil_touch =
 {
-local entity    stemp;
-local float             best;
-
 	if (other.classname != "player")
 		return;
 	if (other.health <= 0)
@@ -1313,9 +1253,6 @@ void() powerup_touch;
 
 void() powerup_touch =
 {
-local entity    stemp;
-local float             best;
-
 	if (other.classname != "player")
 		return;
 	if (other.health <= 0)
@@ -1642,27 +1579,8 @@ void() DropBackpack =
 
 	item = spawn();
 	item.origin = self.origin - '0 0 24';
-	
-	item.items = self.weapon;
-	if (item.items == IT_AXE)
-		item.netname = "Axe";
-	else if (item.items == IT_SHOTGUN)
-		item.netname = "Shotgun";
-	else if (item.items == IT_SUPER_SHOTGUN)
-		item.netname = "Double-barrelled Shotgun";
-	else if (item.items == IT_NAILGUN)
-		item.netname = "Nailgun";
-	else if (item.items == IT_SUPER_NAILGUN)
-		item.netname = "Super Nailgun";
-	else if (item.items == IT_GRENADE_LAUNCHER)
-		item.netname = "Grenade Launcher";
-	else if (item.items == IT_ROCKET_LAUNCHER)
-		item.netname = "Rocket Launcher";
-	else if (item.items == IT_LIGHTNING)
-		item.netname = "Thunderbolt";
-	else
-		item.netname = "";
-
+	item.items = 0;
+	item.netname = "";
 	item.ammo_shells = self.ammo_shells;
 	item.ammo_nails = self.ammo_nails;
 	item.ammo_rockets = self.ammo_rockets;
